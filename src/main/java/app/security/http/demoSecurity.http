@@ -1,0 +1,58 @@
+### Security demo - test, register, login, add role, protected endpoints
+
+# Test endpoint - no auth
+GET {{url}}/auth/test/
+Accept: application/json
+
+###
+# Register a new user (will get USER role)
+POST {{url}}/auth/register/
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "test123"
+}
+
+###
+# Login - stores token to client global variable "jwt_token"
+POST {{url}}/auth/login/
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "test123"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+    console.log("JWT Token:", client.global.get("jwt_token"));
+%}
+
+###
+# Access USER protected endpoint
+GET {{url}}/protected/user_demo/
+Accept: application/json
+Authorization: Bearer {{jwt_token}}
+
+###
+# Try ADMIN protected endpoint (will fail unless user has ADMIN role)
+GET {{url}}/protected/admin_demo/
+Accept: application/json
+Authorization: Bearer {{jwt_token}}
+
+###
+# Add ADMIN role to current user (requires logged-in user)
+POST {{url}}/auth/user/addrole/
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+  "role": "admin"
+}
+
+###
+# After adding role, call admin protected endpoint again (remember to login again to store the new token)
+GET {{url}}/protected/admin_demo/
+Accept: application/json
+Authorization: Bearer {{jwt_token}}

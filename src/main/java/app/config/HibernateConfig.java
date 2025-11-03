@@ -1,9 +1,7 @@
 package app.config;
 
-import app.entities.Battle;
-import app.entities.BattleLog;
-import app.entities.Hero;
-import app.entities.Monster;
+import app.entities.Guide;
+import app.entities.Trip;
 import app.security.entities.Role;
 import app.security.entities.User;
 import app.utils.Utils;
@@ -45,10 +43,8 @@ public class HibernateConfig {
 
     // TODO: IMPORTANT: Add Entity classes here for them to be registered with Hibernate
     private static void getAnnotationConfiguration(Configuration configuration) {
-        configuration.addAnnotatedClass(Battle.class);
-        configuration.addAnnotatedClass(BattleLog.class);
-        configuration.addAnnotatedClass(Hero.class);
-        configuration.addAnnotatedClass(Monster.class);
+        configuration.addAnnotatedClass(Guide.class);
+        configuration.addAnnotatedClass(Trip.class);
         configuration.addAnnotatedClass(User.class);
         configuration.addAnnotatedClass(Role.class);
     }

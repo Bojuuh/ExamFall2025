@@ -1,0 +1,167 @@
+### Dev HTTP collection for local development (uses {{url}} from http-client.env.json)
+
+# -- SECURITY / AUTH --
+
+### Test public auth endpoint
+GET http://{{url}}/auth/test
+Accept: application/json
+
+###
+### Register a new user (creates USER role)
+POST http://{{url}}/auth/register
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "test123"
+}
+
+###
+### Login - stores token to client global variable "jwt_token"
+POST http://{{url}}/auth/login
+Content-Type: application/json
+
+{
+  "username": "user",
+  "password": "test123"
+}
+
+> {%
+    client.global.set("jwt_token", response.body.token);
+    console.log("JWT Token:", client.global.get("jwt_token"));
+%}
+
+###
+### Add role to logged in user (requires Authorization)
+POST http://{{url}}/auth/user/addrole
+Content-Type: application/json
+Authorization: Bearer {{jwt_token}}
+
+{
+  "role": "admin"
+}
+
+###
+### Protected USER endpoint
+GET http://{{url}}/protected/user_demo
+Accept: application/json
+Authorization: Bearer {{jwt_token}}
+
+###
+### Protected ADMIN endpoint
+GET http://{{url}}/protected/admin_demo
+Accept: application/json
+Authorization: Bearer {{jwt_token}}
+
+
+# -- TRIPS --
+
+### Populate database with sample guides + trips
+GET http://{{url}}/trips/populate
+Accept: application/json
+
+###
+### Read all trips
+GET http://{{url}}/trips/
+Accept: application/json
+
+###
+### Read trips by category (example: Beach)
+GET http://{{url}}/trips?category=Beach
+Accept: application/json
+
+###
+### Create a trip
+POST http://{{url}}/trips/
+Content-Type: application/json
+
+{
+  "name": "Sample Trip",
+  "start_time": "2026-08-01T09:00:00",
+  "end_time": "2026-08-07T17:00:00",
+  "latitude": 55.6761,
+  "longitude": 12.5683,
+  "price": 499.0,
+  "category": "city",
+  "guide_id": 1
+}
+
+###
+### Read a trip by id
+GET http://{{url}}/trips/1
+Accept: application/json
+
+###
+### Update a trip (replace id and body as needed)
+PUT http://{{url}}/trips/1
+Content-Type: application/json
+
+{
+  "name": "Updated Trip Name",
+  "start_time": "2026-08-02T09:00:00",
+  "end_time": "2026-08-08T17:00:00",
+  "latitude": 55.6761,
+  "longitude": 12.5683,
+  "price": 549.0,
+  "category": "city",
+  "guide_id": 1
+}
+
+###
+### Delete a trip
+DELETE http://{{url}}/trips/2
+
+###
+### Get total price per guide
+GET http://{{url}}/trips/guides/totalprice
+Accept: application/json
+
+###
+### Get packing weight for a trip
+GET http://{{url}}/trips/1/packing/weight
+Accept: application/json
+
+###
+### Link a guide to a trip (tripId, guideId)
+PUT http://{{url}}/trips/3/guides/5
+Accept: application/json
+
+
+# -- GUIDES --
+
+### Create a guide
+POST http://{{url}}/guides/
+Content-Type: application/json
+
+{
+  "name": "New Guide",
+  "email": "guide@example.com",
+  "phonenumber": "66677788",
+  "years_of_experience": 3
+}
+
+###
+### Read all guides
+GET http://{{url}}/guides/
+Accept: application/json
+
+###
+### Read guide by id
+GET http://{{url}}/guides/5
+Accept: application/json
+
+###
+### Update guide
+PUT http://{{url}}/guides/1
+Content-Type: application/json
+
+{
+  "name": "Updated Guide",
+  "email": "updated@example.com",
+  "phonenumber": "87654321",
+  "years_of_experience": 5
+}
+
+###
+### Delete guide
+DELETE http://{{url}}/guides/1
