@@ -1,18 +1,21 @@
 package app.routes;
 
+import app.controllers.impl.CandidateController;
+import app.security.enums.Role;
 import io.javalin.apibuilder.EndpointGroup;
 
 import static io.javalin.apibuilder.ApiBuilder.*;
 
 public class Routes {
 
-    private final TripRoute tripRoute = new TripRoute();
-    private final GuideRoute guideRoute = new GuideRoute();
+    private final CandidateRoutes candidateRoutes = new CandidateRoutes();
+    private final ReportsRoutes reportsRoutes = new ReportsRoutes();
 
     public EndpointGroup getRoutes() {
         return () -> {
-            path("/trips", tripRoute.getRoutes());
-            path("/guides", guideRoute.getRoutes());
+            path("/candidates", candidateRoutes.getRoutes());
+            path("/reports", reportsRoutes.getRoutes());
         };
     }
+
 }

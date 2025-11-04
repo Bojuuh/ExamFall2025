@@ -1,167 +1,111 @@
-### Dev HTTP collection for local development (uses {{url}} from http-client.env.json)
+### Dev HTTP collection for all endpoints (use environment `dev` from http-client.env.json)
 
-# -- SECURITY / AUTH --
-
-### Test public auth endpoint
-GET http://{{url}}/auth/test
-Accept: application/json
+# 1) Routes overview
+GET http://{{url}}/routes
 
 ###
-### Register a new user (creates USER role)
+# 2) Security - register a new user (returns token + username). Save token to use protected endpoints.
 POST http://{{url}}/auth/register
 Content-Type: application/json
 
 {
-  "username": "user",
-  "password": "test123"
+  "username": "user1",
+  "password": "password1"
 }
 
 ###
-### Login - stores token to client global variable "jwt_token"
+# 3) Security - login (returns token + username)
 POST http://{{url}}/auth/login
 Content-Type: application/json
 
 {
-  "username": "user",
-  "password": "test123"
+  "username": "user1",
+  "password": "password1"
 }
 
-> {%
-    client.global.set("jwt_token", response.body.token);
-    console.log("JWT Token:", client.global.get("jwt_token"));
-%}
+###
+# 4) Public auth test (no auth)
+GET http://{{url}}/auth/test
 
 ###
-### Add role to logged in user (requires Authorization)
-POST http://{{url}}/auth/user/addrole
-Content-Type: application/json
+# 5) Protected endpoint - user demo (requires Bearer token)
+GET http://{{url}}/protected/user_demo
 Authorization: Bearer {{jwt_token}}
+
+###
+# 6) Add role to authenticated user (requires USER role). Body: {"role":"<roleName>"} (case-insensitive)
+POST http://{{url}}/auth/user/addrole
+Authorization: Bearer {{jwt_token}}
+Content-Type: application/json
 
 {
   "role": "admin"
 }
 
 ###
-### Protected USER endpoint
-GET http://{{url}}/protected/user_demo
-Accept: application/json
-Authorization: Bearer {{jwt_token}}
-
-###
-### Protected ADMIN endpoint
+# 7) Protected endpoint - admin demo (requires ADMIN role)
 GET http://{{url}}/protected/admin_demo
-Accept: application/json
 Authorization: Bearer {{jwt_token}}
 
+###
+# Reports - top candidates by popularity (ANYONE)
+GET http://{{url}}/reports/candidates/top-by-popularity
 
-# -- TRIPS --
-
-### Populate database with sample guides + trips
-GET http://{{url}}/trips/populate
+###
+# Populate database with sample candidates and skills
+GET http://{{url}}/candidates/populate
 Accept: application/json
 
 ###
-### Read all trips
-GET http://{{url}}/trips/
-Accept: application/json
-
-###
-### Read trips by category (example: Beach)
-GET http://{{url}}/trips?category=Beach
-Accept: application/json
-
-###
-### Create a trip
-POST http://{{url}}/trips/
+# 8) Candidate - create (ANYONE)
+POST http://{{url}}/candidates
 Content-Type: application/json
 
 {
-  "name": "Sample Trip",
-  "start_time": "2026-08-01T09:00:00",
-  "end_time": "2026-08-07T17:00:00",
-  "latitude": 55.6761,
-  "longitude": 12.5683,
-  "price": 499.0,
-  "category": "city",
-  "guide_id": 1
+  "name": "Example Candidate",
+  "phone": "55566677",
+  "education": "MSc Computer Science",
+  "skills": []
 }
 
 ###
-### Read a trip by id
-GET http://{{url}}/trips/1
-Accept: application/json
+# 9) Candidate - read all (ANYONE)
+GET http://{{url}}/candidates
 
 ###
-### Update a trip (replace id and body as needed)
-PUT http://{{url}}/trips/1
+# 10) Candidate - read by id (ANYONE)
+# Replace {{candidateId}} with the id from create/readAll responses
+### Test variables
+@candidateId = 3
+@skillId = 4
+
+GET http://{{url}}/candidates/{{candidateId}}
+
+###
+# 11) Candidate - update (ANYONE)
+PUT http://{{url}}/candidates/{{candidateId}}
 Content-Type: application/json
 
 {
-  "name": "Updated Trip Name",
-  "start_time": "2026-08-02T09:00:00",
-  "end_time": "2026-08-08T17:00:00",
-  "latitude": 55.6761,
-  "longitude": 12.5683,
-  "price": 549.0,
-  "category": "city",
-  "guide_id": 1
+  "name": "Example Candidate",
+  "phone": "87654321",
+  "education": "PhD Computer Science",
+  "skills": []
 }
 
 ###
-### Delete a trip
-DELETE http://{{url}}/trips/2
+# 12) Candidate - delete (ANYONE)
+DELETE http://{{url}}/candidates/{{candidateId}}
 
 ###
-### Get total price per guide
-GET http://{{url}}/trips/guides/totalprice
-Accept: application/json
+# 13) Candidate - link existing skill to candidate (idempotent, ANYONE)
+# Replace {{skillId}} with a real skill id (from DB or populator). If none exist, run your data populator or insert skills directly.
+PUT http://{{url}}/candidates/{{candidateId}}/skills/{{skillId}}
 
 ###
-### Get packing weight for a trip
-GET http://{{url}}/trips/1/packing/weight
-Accept: application/json
+# 14) Candidate - filter by skill category (ANYONE)
+# Examples: PROG_LANG, DB, DEVOPS, FRONTEND, TESTING, DATA, FRAMEWORK
+@category = PROG_LANG
+GET http://{{url}}/candidates/filter?category={{category}}
 
 ###
-### Link a guide to a trip (tripId, guideId)
-PUT http://{{url}}/trips/3/guides/5
-Accept: application/json
-
-
-# -- GUIDES --
-
-### Create a guide
-POST http://{{url}}/guides/
-Content-Type: application/json
-
-{
-  "name": "New Guide",
-  "email": "guide@example.com",
-  "phonenumber": "66677788",
-  "years_of_experience": 3
-}
-
-###
-### Read all guides
-GET http://{{url}}/guides/
-Accept: application/json
-
-###
-### Read guide by id
-GET http://{{url}}/guides/5
-Accept: application/json
-
-###
-### Update guide
-PUT http://{{url}}/guides/1
-Content-Type: application/json
-
-{
-  "name": "Updated Guide",
-  "email": "updated@example.com",
-  "phonenumber": "87654321",
-  "years_of_experience": 5
-}
-
-###
-### Delete guide
-DELETE http://{{url}}/guides/1

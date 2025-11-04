@@ -30,6 +30,8 @@ public class ApplicationConfig {
         config.router.apiBuilder(routes.getRoutes());
         config.router.apiBuilder(SecurityRoutes.getSecuredRoutes());
         config.router.apiBuilder(SecurityRoutes.getSecurityRoutes());
+        config.jsonMapper(new io.javalin.json.JavalinJackson());
+
     }
 
     public static Javalin startServer(int port) {
